@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     outlet_id INT NOT NULL,
     name VARCHAR(100) NOT NULL,
-    description TEXT DEFAULT '',
+    description TEXT,
     price DECIMAL(10, 2) NOT NULL,
     category VARCHAR(100) DEFAULT '',
     image_url VARCHAR(500) DEFAULT '',

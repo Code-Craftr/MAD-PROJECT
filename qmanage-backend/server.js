@@ -12,7 +12,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 const userRoutes = require('./routes/userRoutes');
+const outletRoutes = require('./routes/outletRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
 app.use('/api/users', userRoutes);
+app.use('/api/outlets', outletRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Health check endpoint
 app.get('/', (req, res) => {
