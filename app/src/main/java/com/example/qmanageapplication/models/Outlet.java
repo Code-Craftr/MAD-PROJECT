@@ -1,30 +1,52 @@
 package com.example.qmanageapplication.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Outlet {
+    private int id;
     private String name;
-    private String categories; // e.g. "Rolls • Indian • Fried"
+    private String categories;
     private float rating;
-    private String waitTime;    // e.g. "12 mins wait"
-    private String queueCount;  // e.g. "8 in queue"
-    private int imageResId;
+
+    @SerializedName("wait_time_minutes")
+    private int waitTimeMinutes;
+
+    @SerializedName("queue_count")
+    private int queueCount;
+
+    @SerializedName("image_res_name")
+    private String imageResName;
+
+    @SerializedName("is_open")
     private boolean isOpen;
 
-    public Outlet(String name, String categories, float rating, String waitTime,
-                  String queueCount, int imageResId, boolean isOpen) {
+    public Outlet(int id, String name, String categories, float rating, int waitTimeMinutes,
+                  int queueCount, String imageResName, boolean isOpen) {
+        this.id = id;
         this.name = name;
         this.categories = categories;
         this.rating = rating;
-        this.waitTime = waitTime;
+        this.waitTimeMinutes = waitTimeMinutes;
         this.queueCount = queueCount;
-        this.imageResId = imageResId;
+        this.imageResName = imageResName;
         this.isOpen = isOpen;
     }
 
+    public int getId() { return id; }
     public String getName() { return name; }
     public String getCategories() { return categories; }
     public float getRating() { return rating; }
-    public String getWaitTime() { return waitTime; }
-    public String getQueueCount() { return queueCount; }
-    public int getImageResId() { return imageResId; }
+    public int getWaitTimeMinutes() { return waitTimeMinutes; }
+    public int getQueueCount() { return queueCount; }
+    public String getImageResName() { return imageResName; }
     public boolean isOpen() { return isOpen; }
+
+    // Helper for display
+    public String getWaitTimeDisplay() {
+        return waitTimeMinutes + " mins wait";
+    }
+
+    public String getQueueCountDisplay() {
+        return queueCount + " in queue";
+    }
 }

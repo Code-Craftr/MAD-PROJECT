@@ -80,7 +80,15 @@ public class FoodItemAdapter extends RecyclerView.Adapter<FoodItemAdapter.FoodVi
             tvFoodName.setText(item.getName());
             tvFoodDescription.setText(item.getDescription());
             tvFoodPrice.setText(String.format(Locale.getDefault(), "Rs. %.0f", item.getPrice()));
-            imgFood.setImageResource(item.getImageResId());
+
+            // Load image dynamically by resource name
+            int resId = itemView.getContext().getResources().getIdentifier(
+                    item.getImageResName(), "drawable", itemView.getContext().getPackageName());
+            if (resId != 0) {
+                imgFood.setImageResource(resId);
+            } else {
+                imgFood.setImageResource(R.drawable.placeholder_food);
+            }
         }
     }
 }

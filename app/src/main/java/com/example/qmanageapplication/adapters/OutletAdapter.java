@@ -75,11 +75,19 @@ public class OutletAdapter extends RecyclerView.Adapter<OutletAdapter.OutletView
         }
 
         void bind(Outlet outlet) {
-            imgOutlet.setImageResource(outlet.getImageResId());
+            // Load image dynamically by resource name
+            int resId = itemView.getContext().getResources().getIdentifier(
+                    outlet.getImageResName(), "drawable", itemView.getContext().getPackageName());
+            if (resId != 0) {
+                imgOutlet.setImageResource(resId);
+            } else {
+                imgOutlet.setImageResource(R.drawable.placeholder_food);
+            }
+
             tvOutletName.setText(outlet.getName());
             tvRating.setText(String.valueOf(outlet.getRating()));
-            tvWaitTime.setText(outlet.getWaitTime());
-            tvQueueCount.setText(outlet.getQueueCount());
+            tvWaitTime.setText(outlet.getWaitTimeDisplay());
+            tvQueueCount.setText(outlet.getQueueCountDisplay());
             tvCategories.setText(outlet.getCategories());
 
             tvOpenBadge.setVisibility(outlet.isOpen() ? View.VISIBLE : View.GONE);
