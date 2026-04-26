@@ -10,7 +10,13 @@ const pool = mysql.createPool({
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    typeCast: function (field, next) {
+        if (field.type === 'TINY' && field.length === 1) {
+            return (field.string() === '1'); // 1 = true, 0 = false
+        }
+        return next();
+    }
 });
 
 // Test the connection

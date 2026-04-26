@@ -2,12 +2,15 @@ package com.example.qmanageapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,20 +18,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.qmanageapplication.adapters.FoodItemAdapter;
 import com.example.qmanageapplication.models.CartManager;
 import com.example.qmanageapplication.models.FoodItem;
+import com.example.qmanageapplication.network.ApiClient;
+import com.example.qmanageapplication.network.responses.MenuResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class OutletMenuActivity extends AppCompatActivity implements FoodItemAdapter.OnAddClickListener {
 
+    private static final String TAG = "OutletMenuActivity";
     private RecyclerView rvFoodItems;
     private FoodItemAdapter foodItemAdapter;
-    private List<FoodItem> allFoodItems;
+    private List<FoodItem> allFoodItems = new ArrayList<>();
     private LinearLayout cartBarLayout;
     private TextView tvCartItemCount, tvCartTotal;
     private TextView tabAllItems, tabMainCourse, tabSides, tabRolls;
     private TextView selectedTab;
+    private ProgressBar progressBar;
+    private int outletId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +48,7 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
         setContentView(R.layout.activity_outlet_menu);
 
         // Get outlet info from intent
+        outletId = getIntent().getIntExtra("outlet_id", -1);
         String outletName = getIntent().getStringExtra("outlet_name");
         String outletCategories = getIntent().getStringExtra("outlet_categories");
         float outletRating = getIntent().getFloatExtra("outlet_rating", 4.5f);
@@ -44,6 +57,7 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
         TextView tvOutletName = findViewById(R.id.tvOutletName);
         TextView tvOutletSubtitle = findViewById(R.id.tvOutletSubtitle);
         TextView tvRating = findViewById(R.id.tvRating);
+        progressBar = findViewById(R.id.progressBar);
 
         tvOutletName.setText(outletName != null ? outletName : "Kathi Junction");
         tvOutletSubtitle.setText(outletCategories != null ? outletCategories : "Exquisite Rolls");
@@ -57,7 +71,6 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
         cartBarLayout = findViewById(R.id.cartBarLayout);
         tvCartItemCount = findViewById(R.id.tvCartItemCount);
         tvCartTotal = findViewById(R.id.tvCartTotal);
-        TextView tvViewCart = findViewById(R.id.tvViewCart);
 
         cartBarLayout.setOnClickListener(v -> {
             Intent intent = new Intent(OutletMenuActivity.this, CartActivity.class);
@@ -75,12 +88,42 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
 
         // Food items
         rvFoodItems = findViewById(R.id.rvFoodItems);
-        allFoodItems = getDummyFoodItems();
         foodItemAdapter = new FoodItemAdapter(allFoodItems, this);
         rvFoodItems.setLayoutManager(new LinearLayoutManager(this));
         rvFoodItems.setAdapter(foodItemAdapter);
 
+        if (outletId != -1) {
+            fetchMenu();
+        } else {
+            Toast.makeText(this, "Invalid Outlet", Toast.LENGTH_SHORT).show();
+        }
+
         updateCartBar();
+    }
+
+    private void fetchMenu() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+
+        ApiClient.getApiService().getOutletMenu(outletId).enqueue(new Callback<MenuResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<MenuResponse> call, @NonNull Response<MenuResponse> response) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    allFoodItems = response.body().getMenuItems();
+                    foodItemAdapter.updateList(allFoodItems);
+                } else {
+                    Toast.makeText(OutletMenuActivity.this, "Failed to load menu", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<MenuResponse> call, @NonNull Throwable t) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Log.e(TAG, "Error: " + t.getMessage());
+                Toast.makeText(OutletMenuActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -91,16 +134,13 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
 
     private void setupTabs() {
         View.OnClickListener tabClickListener = v -> {
-            // Reset previous tab
             if (selectedTab != null) {
                 selectedTab.setTextColor(getResources().getColor(R.color.text_secondary, null));
             }
 
-            // Set new tab
             selectedTab = (TextView) v;
             selectedTab.setTextColor(getResources().getColor(R.color.primary, null));
 
-            // Filter items
             filterByCategory(selectedTab.getText().toString());
         };
 
@@ -120,29 +160,8 @@ public class OutletMenuActivity extends AppCompatActivity implements FoodItemAda
                     filtered.add(item);
                 }
             }
-            foodItemAdapter.updateList(filtered.isEmpty() ? allFoodItems : filtered);
+            foodItemAdapter.updateList(filtered);
         }
-    }
-
-    private List<FoodItem> getDummyFoodItems() {
-        List<FoodItem> items = new ArrayList<>();
-        items.add(new FoodItem("Paneer Roll", "Roll with paneer and sauces.",
-                80, R.drawable.placeholder_food, "Rolls"));
-        items.add(new FoodItem("Peri Peri Paneer Roll", "Roll with paneer and sauces.",
-                90, R.drawable.placeholder_food, "Rolls"));
-        items.add(new FoodItem("Butter Chicken", "Chicken With Gravy",
-                200, R.drawable.placeholder_food, "Main Course"));
-        items.add(new FoodItem("Paneer Butter Masala", "Paneer with Gravy",
-                250, R.drawable.placeholder_food, "Main Course"));
-        items.add(new FoodItem("Chicken Burger", "Juicy chicken patty with cheese",
-                100, R.drawable.placeholder_food, "Main Course"));
-        items.add(new FoodItem("Cola", "Chilled soft drink",
-                50, R.drawable.placeholder_food, "Sides & Extras"));
-        items.add(new FoodItem("French Fries", "Crispy golden fries",
-                70, R.drawable.placeholder_food, "Sides & Extras"));
-        items.add(new FoodItem("Garlic Bread", "Toasted with garlic butter",
-                80, R.drawable.placeholder_food, "Sides & Extras"));
-        return items;
     }
 
     @Override

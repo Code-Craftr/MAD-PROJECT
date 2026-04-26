@@ -60,7 +60,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             tvFoodName.setText(item.getFoodItem().getName());
             tvQuantity.setText(String.format(Locale.getDefault(), "Qty: %d", item.getQuantity()));
             tvPrice.setText(String.format(Locale.getDefault(), "Rs. %.0f", item.getTotalPrice()));
-            imgFood.setImageResource(item.getFoodItem().getImageResId());
+
+            // Load image dynamically by resource name
+            int resId = itemView.getContext().getResources().getIdentifier(
+                    item.getFoodItem().getImageResName(), "drawable", itemView.getContext().getPackageName());
+            if (resId != 0) {
+                imgFood.setImageResource(resId);
+            } else {
+                imgFood.setImageResource(R.drawable.placeholder_food);
+            }
         }
     }
 }
