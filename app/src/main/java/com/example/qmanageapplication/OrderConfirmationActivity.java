@@ -17,23 +17,25 @@ public class OrderConfirmationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_confirmation);
 
-        // Generate random token
-        Random random = new Random();
-        String token = "#B-" + (random.nextInt(90) + 10);
+        // Get real token from intent
+        String token = getIntent().getStringExtra("token_number");
+        if (token == null) token = "QM-0000";
 
         TextView tvTokenNumber = findViewById(R.id.tvTokenNumber);
         tvTokenNumber.setText(token);
 
-        // Random prep time
+        // Random prep time (this could also be fetched from API if needed)
+        Random random = new Random();
         TextView tvPrepTime = findViewById(R.id.tvPrepTime);
         int prepTime = random.nextInt(15) + 8;
         tvPrepTime.setText(prepTime + " mins");
 
         // Track Order button
+        String finalToken = token;
         MaterialButton btnTrackOrder = findViewById(R.id.btnTrackOrder);
         btnTrackOrder.setOnClickListener(v -> {
             Intent intent = new Intent(OrderConfirmationActivity.this, OrderTrackingActivity.class);
-            intent.putExtra("token_number", token);
+            intent.putExtra("token_number", finalToken);
             intent.putExtra("prep_time", prepTime);
             startActivity(intent);
             finish();
@@ -42,7 +44,6 @@ public class OrderConfirmationActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // Navigate to home instead of back
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

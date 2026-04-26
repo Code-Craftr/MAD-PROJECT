@@ -1,31 +1,45 @@
 package com.example.qmanageapplication.models;
 
-public class Order {
-    private String orderId;
-    private String outletName;
-    private String date;
-    private double amount;
-    private String tokenNumber;
-    private String status; // "Received", "Preparing", "Ready"
-    private int outletImageResId;
+import com.google.gson.annotations.SerializedName;
 
-    public Order(String orderId, String outletName, String date, double amount,
-                 String tokenNumber, String status, int outletImageResId) {
+public class Order {
+    @SerializedName("id")
+    private int orderId;
+
+    @SerializedName("outletName")
+    private String outletName;
+
+    @SerializedName("created_at")
+    private String date;
+
+    @SerializedName("total_amount")
+    private double amount;
+
+    @SerializedName("token_number")
+    private String tokenNumber;
+
+    private String status; // "Received", "Preparing", "Ready"
+
+    @SerializedName("outletImage")
+    private String outletImage;
+
+    public Order(int orderId, String outletName, String date, double amount,
+                 String tokenNumber, String status, String outletImage) {
         this.orderId = orderId;
         this.outletName = outletName;
         this.date = date;
         this.amount = amount;
         this.tokenNumber = tokenNumber;
         this.status = status;
-        this.outletImageResId = outletImageResId;
+        this.outletImage = outletImage;
     }
 
-    public String getOrderId() { return orderId; }
+    public int getOrderId() { return orderId; }
     public String getOutletName() { return outletName; }
     public String getDate() { return date; }
     public double getAmount() { return amount; }
     public String getTokenNumber() { return tokenNumber; }
-    public String getStatus() { return status; }
+    public String getStatus() { return status != null ? status : "Received"; }
     public void setStatus(String status) { this.status = status; }
-    public int getOutletImageResId() { return outletImageResId; }
+    public String getOutletImage() { return outletImage != null ? outletImage : "placeholder_food"; }
 }

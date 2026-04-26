@@ -18,6 +18,9 @@ public class FoodItem {
     @SerializedName("is_available")
     private boolean isAvailable;
 
+    @SerializedName("outlet_id")
+    private int outletId;
+
     public FoodItem(int id, String name, String description, double price, String category,
                     boolean isVeg, String imageResName, boolean isAvailable) {
         this.id = id;
@@ -38,4 +41,5 @@ public class FoodItem {
     public boolean isVeg() { return isVeg; }
     public String getImageResName() { return imageResName; }
     public boolean isAvailable() { return isAvailable; }
+    public int getOutletId() { return outletId; }
 }

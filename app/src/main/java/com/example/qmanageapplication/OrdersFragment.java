@@ -2,9 +2,12 @@ package com.example.qmanageapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,11 +17,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.qmanageapplication.adapters.OrderAdapter;
 import com.example.qmanageapplication.models.Order;
+import com.example.qmanageapplication.network.ApiClient;
+import com.example.qmanageapplication.network.SessionManager;
+import com.example.qmanageapplication.network.responses.OrderListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class OrdersFragment extends Fragment implements OrderAdapter.OnOrderClickListener {
+
+    private static final String TAG = "OrdersFragment";
+    private RecyclerView rvOrders;
+    private OrderAdapter adapter;
+    private List<Order> orderList = new ArrayList<>();
+    private SessionManager sessionManager;
+    private ProgressBar progressBar;
 
     @Nullable
     @Override
@@ -26,30 +43,47 @@ public class OrdersFragment extends Fragment implements OrderAdapter.OnOrderClic
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_orders, container, false);
 
-        RecyclerView rvOrders = view.findViewById(R.id.rvOrders);
-        List<Order> orders = getDummyOrders();
-        OrderAdapter adapter = new OrderAdapter(orders, this);
+        sessionManager = new SessionManager(requireContext());
+        rvOrders = view.findViewById(R.id.rvOrders);
+        progressBar = view.findViewById(R.id.progressBar);
+
+        adapter = new OrderAdapter(orderList, this);
         rvOrders.setLayoutManager(new LinearLayoutManager(getContext()));
         rvOrders.setAdapter(adapter);
+
+        if (sessionManager.isLoggedIn()) {
+            fetchOrders();
+        } else {
+            Toast.makeText(getContext(), "Please login to see orders", Toast.LENGTH_SHORT).show();
+        }
 
         return view;
     }
 
-    private List<Order> getDummyOrders() {
-        List<Order> orders = new ArrayList<>();
-        orders.add(new Order("3421", "Kathi Junction",
-                "Oct 24, 2023 • 12:30 PM", 150,
-                "#B-42", "Ready", R.drawable.placeholder_food));
-        orders.add(new Order("3308", "Burger Singh",
-                "Oct 18, 2023 • 07:15 PM", 200,
-                "#B-38", "Ready", R.drawable.placeholder_food));
-        orders.add(new Order("3195", "Pizza Corner",
-                "Oct 12, 2023 • 01:45 PM", 320,
-                "#B-35", "Ready", R.drawable.placeholder_food));
-        orders.add(new Order("3102", "Smoothie",
-                "Oct 05, 2023 • 11:20 AM", 90,
-                "#B-31", "Ready", R.drawable.placeholder_food));
-        return orders;
+    private void fetchOrders() {
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        
+        ApiClient.getApiService().getUserOrders(sessionManager.getUserId()).enqueue(new Callback<OrderListResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<OrderListResponse> call, @NonNull Response<OrderListResponse> response) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                
+                if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                    orderList.clear();
+                    orderList.addAll(response.body().getOrders());
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getContext(), "Failed to load orders", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<OrderListResponse> call, @NonNull Throwable t) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                Log.e(TAG, "Fetch orders failed", t);
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

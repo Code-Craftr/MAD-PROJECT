@@ -48,15 +48,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     }
 
     class OrderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvOrderId;
-        private final TextView tvOrderDate;
-        private final TextView tvAmount;
+        private final TextView tvOrderId, tvOutletName, tvOrderDate, tvAmount, tvStatus;
 
         OrderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvOrderId = itemView.findViewById(R.id.tvOrderId);
+            tvOutletName = itemView.findViewById(R.id.tvOutletName);
             tvOrderDate = itemView.findViewById(R.id.tvOrderDate);
             tvAmount = itemView.findViewById(R.id.tvAmount);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
 
             itemView.setOnClickListener(v -> {
                 int pos = getAdapterPosition();
@@ -68,8 +68,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
 
         void bind(Order order) {
             tvOrderId.setText("Order #" + order.getOrderId());
+            if (tvOutletName != null) tvOutletName.setText(order.getOutletName());
             tvOrderDate.setText(order.getDate());
             tvAmount.setText(String.format(Locale.getDefault(), "Rs. %.0f", order.getAmount()));
+            if (tvStatus != null) tvStatus.setText(order.getStatus());
         }
     }
 }

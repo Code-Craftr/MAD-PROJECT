@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.qmanageapplication.adapters.OutletAdapter;
 import com.example.qmanageapplication.models.Outlet;
 import com.example.qmanageapplication.network.ApiClient;
+import com.example.qmanageapplication.network.SessionManager;
 import com.example.qmanageapplication.network.responses.OutletResponse;
 
 import java.util.ArrayList;
@@ -38,11 +39,20 @@ public class HomeFragment extends Fragment implements OutletAdapter.OnOutletClic
     private TextView selectedChip;
     private ProgressBar progressBar;
 
+    private SessionManager sessionManager;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        sessionManager = new SessionManager(requireContext());
+        TextView tvGreeting = view.findViewById(R.id.tvGreeting);
+        if (sessionManager.isLoggedIn()) {
+            String firstName = sessionManager.getUserName().split(" ")[0];
+            tvGreeting.setText("Hello, " + firstName + "!");
+        }
 
         rvOutlets = view.findViewById(R.id.rvOutlets);
         chipAll = view.findViewById(R.id.chipAll);

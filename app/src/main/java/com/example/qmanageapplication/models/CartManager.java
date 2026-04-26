@@ -9,6 +9,7 @@ import java.util.List;
 public class CartManager {
     private static CartManager instance;
     private final List<CartItem> cartItems;
+    private int currentOutletId = -1;
 
     private CartManager() {
         cartItems = new ArrayList<>();
@@ -22,9 +23,15 @@ public class CartManager {
     }
 
     public void addItem(FoodItem foodItem) {
+        // If cart is from a different outlet, clear it
+        if (currentOutletId != -1 && currentOutletId != foodItem.getOutletId()) {
+            cartItems.clear();
+        }
+        currentOutletId = foodItem.getOutletId();
+
         // Check if item already exists in cart
         for (CartItem cartItem : cartItems) {
-            if (cartItem.getFoodItem().getName().equals(foodItem.getName())) {
+            if (cartItem.getFoodItem().getId() == foodItem.getId()) {
                 cartItem.setQuantity(cartItem.getQuantity() + 1);
                 return;
             }
@@ -33,9 +40,14 @@ public class CartManager {
         cartItems.add(new CartItem(foodItem, 1));
     }
 
+    public int getCurrentOutletId() {
+        return currentOutletId;
+    }
+
     public void removeItem(int position) {
         if (position >= 0 && position < cartItems.size()) {
             cartItems.remove(position);
+            if (cartItems.isEmpty()) currentOutletId = -1;
         }
     }
 
@@ -87,6 +99,7 @@ public class CartManager {
 
     public void clearCart() {
         cartItems.clear();
+        currentOutletId = -1;
     }
 
     public boolean isEmpty() {

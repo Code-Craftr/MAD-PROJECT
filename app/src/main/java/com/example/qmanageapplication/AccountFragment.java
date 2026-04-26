@@ -13,13 +13,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.qmanageapplication.network.SessionManager;
+
 public class AccountFragment extends Fragment {
+
+    private SessionManager sessionManager;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_account, container, false);
+
+        sessionManager = new SessionManager(requireContext());
+
+        // Set user details
+        TextView tvUserName = view.findViewById(R.id.tvUserName);
+        TextView tvUserId = view.findViewById(R.id.tvUserId);
+
+        if (sessionManager.isLoggedIn()) {
+            tvUserName.setText(sessionManager.getUserName());
+            tvUserId.setText("User ID: #" + sessionManager.getUserId());
+        }
 
         // Menu item clicks
         LinearLayout menuOrders = view.findViewById(R.id.menuOrders);
@@ -28,22 +43,19 @@ public class AccountFragment extends Fragment {
         TextView btnLogout = view.findViewById(R.id.btnLogout);
 
         menuOrders.setOnClickListener(v -> {
-            // Switch to orders tab
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).findViewById(R.id.bottom_navigation)
-                        .findViewById(R.id.nav_orders).performClick();
+                MainActivity activity = (MainActivity) getActivity();
+                activity.getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new OrdersFragment())
+                        .commit();
             }
         });
 
-        menuSettings.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Settings coming soon", Toast.LENGTH_SHORT).show();
-        });
-
-        menuHelp.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show();
-        });
+        menuSettings.setOnClickListener(v -> Toast.makeText(getContext(), "Settings coming soon", Toast.LENGTH_SHORT).show());
+        menuHelp.setOnClickListener(v -> Toast.makeText(getContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show());
 
         btnLogout.setOnClickListener(v -> {
+            sessionManager.logout();
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
