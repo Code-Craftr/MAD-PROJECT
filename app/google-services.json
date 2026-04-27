@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1055713173621",
+    "project_id": "qmanage-2ceee",
+    "storage_bucket": "qmanage-2ceee.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1055713173621:android:93e98b03a3ca559964983c",
+        "android_client_info": {
+          "package_name": "com.example.qmanageapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1055713173621-b7rb6fb6nsfm8lf6berpp2sk3on195ha.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.qmanageapplication",
+            "certificate_hash": "2f476944e3c72a804f0259fc55858175144dac82"
+          }
+        },
+        {
+          "client_id": "1055713173621-lmtlvr7nhrjrlmp8hb0mgk0r0tjeuag0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_FGTPCmvOcA4d2UxCI6tQP5SSTKE_R24"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1055713173621-l4962jbhs13h6ugrgckitpdrmktcj4fa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

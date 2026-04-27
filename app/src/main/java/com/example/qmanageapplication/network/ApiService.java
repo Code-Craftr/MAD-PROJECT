@@ -37,4 +37,7 @@ public interface ApiService {
 
     @GET("orders/{orderId}")
     Call<SingleOrderResponse> getOrderById(@Path("orderId") int orderId);
+
+    @POST("users/google-login")
+    Call<AuthResponse> googleLogin(@Body java.util.Map<String, String> body);
 }
