@@ -199,7 +199,7 @@ document.getElementById('addItemForm').addEventListener('submit', async (e) => {
         description: formData.get('description'),
         price: formData.get('price'),
         isVeg: formData.get('isVeg') === '1',
-        categories: 'Main Course' // Default for now
+        category: 'Main Course' // Changed from categories to category
     };
 
     try {
