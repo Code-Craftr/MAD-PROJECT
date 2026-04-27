@@ -105,4 +105,27 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
-module.exports = { placeOrder, getUserOrders, getOutletOrders, updateOrderStatus };
+// GET /api/orders/:orderId
+const getOrderById = async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const [orders] = await db.query(
+            `SELECT o.*, ot.name as outletName, ot.image_url as outletImage 
+             FROM orders o 
+             JOIN outlets ot ON o.outlet_id = ot.id 
+             WHERE o.id = ?`,
+            [orderId]
+        );
+
+        if (orders.length === 0) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        res.json({ success: true, order: orders[0] });
+    } catch (error) {
+        console.error('Get Order By Id Error:', error.message);
+        res.status(500).json({ success: false, message: 'Error fetching order' });
+    }
+};
+
+module.exports = { placeOrder, getUserOrders, getOutletOrders, updateOrderStatus, getOrderById };

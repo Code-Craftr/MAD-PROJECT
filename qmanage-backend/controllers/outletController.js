@@ -30,17 +30,18 @@ const getOutletMenu = async (req, res) => {
 const addMenuItem = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, isVeg, categories } = req.body;
+        const { name, description, price, isVeg, category } = req.body;
+        console.log('Adding item:', { id, name, price, isVeg, category });
 
         await db.query(
-            'INSERT INTO menu_items (outlet_id, name, description, price, is_veg, categories) VALUES (?, ?, ?, ?, ?, ?)',
-            [id, name, description, price, isVeg, categories]
+            'INSERT INTO menu_items (outlet_id, name, description, price, is_veg, category) VALUES (?, ?, ?, ?, ?, ?)',
+            [id, name, description, price, isVeg, category]
         );
 
         res.status(201).json({ success: true, message: 'Menu item added' });
     } catch (error) {
-        console.error('Add Menu Item Error:', error.message);
-        res.status(500).json({ success: false, message: 'Error adding menu item' });
+        console.error('Add Menu Item Error:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
